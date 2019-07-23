@@ -21,15 +21,23 @@ namespace Registry.Data.Mapping.Areas
             builder.HasKey(area => area.Id);
 
             builder.Property(area => area.Name).IsRequired();
+            builder.Property(area => area.Geometry).IsRequired();
             builder.Property(area => area.CadastralNum).IsRequired();
 
-            builder.HasOne(area => area.AreaType)
+            builder.HasOne(area => area.Type)
                 .WithMany()
-                .HasForeignKey(area => area.AreaTypeId);
+                .HasForeignKey(area => area.TypeId)
+                .OnDelete(DeleteBehavior.Restrict); ;
 
             builder.HasOne(area => area.OwnershipType)
                 .WithMany()
-                .HasForeignKey(area => area.OwnershipTypeId);
+                .HasForeignKey(area => area.OwnershipTypeId)
+                .OnDelete(DeleteBehavior.Restrict); ;
+
+            builder.HasOne(area => area.Document)
+                .WithMany()
+                .HasForeignKey(area => area.DocumentId)
+                .OnDelete(DeleteBehavior.Restrict); ;
 
             base.Configure(builder);
         }
