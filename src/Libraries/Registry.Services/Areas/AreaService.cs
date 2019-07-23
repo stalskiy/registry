@@ -1,5 +1,6 @@
 ﻿using Registry.Core.Data;
 using Registry.Core.Domain.Areas;
+using Registry.Core.Domain.References;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,14 +16,23 @@ namespace Registry.Services.Areas
         #region Fields
         
         private readonly IRepository<Area> _areaRepository;
+        private readonly IRepository<AreaType> _areaTypeRepository;
+        private readonly IRepository<AreaOwnershipType> _areaOwnershipTypeRepository;
 
         #endregion
 
         #region Ctor
 
-        public AreaService(IRepository<Area> areaRepository)
+        /// <summary>
+        /// Area service
+        /// </summary>
+        public AreaService(IRepository<Area> areaRepository,
+            IRepository<AreaType> areaTypeRepository, 
+            IRepository<AreaOwnershipType> areaOwnershipTypeRepository)
         {
             _areaRepository = areaRepository;
+            _areaTypeRepository = areaTypeRepository;
+            _areaOwnershipTypeRepository = areaOwnershipTypeRepository;
         }
 
         #endregion
@@ -74,13 +84,27 @@ namespace Registry.Services.Areas
         }
 
         /// <summary>
-        /// Marks area as deleted 
+        /// Delete area
         /// </summary>
         /// <param name="area">Area</param>
         public void DeleteArea(Area area)
         {
             if (area == null)
                 throw new ArgumentNullException(nameof(area));
+
+            _areaRepository.Delete(area);
+        }
+
+        /// <summary>
+        /// Delete area by identifier
+        /// </summary>
+        /// <param name="areaId">Area identifier</param>
+        public void DeleteAreaById(int areaId)
+        {
+            if (areaId == 0)
+                return;
+
+            Area area = new Area() { Id = areaId };
 
             _areaRepository.Delete(area);
         }
@@ -108,6 +132,40 @@ namespace Registry.Services.Areas
 
             _areaRepository.Update(area);
 
+        }
+
+        /// <summary>
+        /// Get area document by area identifier
+        /// </summary>
+        /// <param name="areaId">Area identifier</param>
+        /// <returns>Are document</returns>
+        public AreaDocument GetAreaDocumentById(int areaId)
+        {
+            if (areaId == 0)
+                return null;
+
+            var query = _areaRepository.Table;
+            return query.Where(t => t.Id == areaId).FirstOrDefault()?.Document;
+        }
+
+        /// <summary>
+        /// Get all area types
+        /// </summary>
+        /// <returns>Area types</returns>
+        public IList<AreaType> GetAreaTypesAll()
+        {
+            var query = _areaTypeRepository.Table;
+            return query.ToList();
+        }
+
+        /// <summary>
+        /// Get all area ownership types
+        /// </summary>
+        /// <returns>Area ownership types</returns>
+        public IList<AreaOwnershipType> GetAreaOwnershipTypesAll()
+        {
+            var query = _areaOwnershipTypeRepository.Table;
+            return query.ToList();
         }
         #endregion
     }

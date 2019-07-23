@@ -1,4 +1,5 @@
 ﻿using Registry.Core.Domain.Areas;
+using Registry.Core.Domain.References;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -38,10 +39,16 @@ namespace Registry.Services.Areas
         IList<Area> GetAreasByPoligon(object poligon);
 
         /// <summary>
-        /// Marks area as deleted 
+        /// Delete area
         /// </summary>
         /// <param name="area">Area</param>
         void DeleteArea(Area area);
+
+        /// <summary>
+        /// Delete area by identifier
+        /// </summary>
+        /// <param name="areaId">Area identifier</param>
+        void DeleteAreaById(int areaId);
 
         /// <summary>
         /// Inserts an area
@@ -54,5 +61,24 @@ namespace Registry.Services.Areas
         /// </summary>
         /// <param name="area">Area</param>
         void UpdateArea(Area area);
+
+        /// <summary>
+        /// Get area document by area identifier
+        /// </summary>
+        /// <param name="areaId">Area identifier</param>
+        /// <returns>Area document</returns>
+        AreaDocument GetAreaDocumentById(int areaId);
+
+        /// <summary>
+        /// Get all area types
+        /// </summary>
+        /// <returns>Area types</returns>
+        IList<AreaType> GetAreaTypesAll();
+
+        /// <summary>
+        /// Get all area ownership types
+        /// </summary>
+        /// <returns>Area ownership types</returns>
+        IList<AreaOwnershipType> GetAreaOwnershipTypesAll();
     }
 }
