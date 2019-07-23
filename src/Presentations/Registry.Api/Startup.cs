@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -40,6 +41,7 @@ namespace Registry.Api
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Version = "v1", Title = "Registry API", });
+                c.IncludeXmlComments(Path.Combine(_hostingEnvironment.ContentRootPath, "bin/Debug/netcoreapp2.2/swagger.xml"));
             });
 
             return services.ConfigureApplicationServices(_configuration, _hostingEnvironment);
