@@ -1,0 +1,4 @@
+* You must implement tests!
+	- Registry.Core.Tests
+	- Registry.Services.Tests
+	- Registry.Api.Tests
