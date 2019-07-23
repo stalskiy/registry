@@ -1,0 +1,18 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Registry", "Registry\Registry.shproj", "{190D2D5D-0CEE-4872-A4A7-CA9890224CDF}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Registry\Registry.projitems*{190d2d5d-0cee-4872-a4a7-ca9890224cdf}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {534C1809-D17F-4B47-91BB-B28AB56887A2}
+	EndGlobalSection
+EndGlobal
