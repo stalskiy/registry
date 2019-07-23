@@ -20,7 +20,8 @@ namespace Registry.Data.Mapping.Areas
             builder.ToTable(nameof(AreaDocument));
             builder.HasKey(area => area.Id);
 
-            builder.Property(area => area.File).IsRequired();          
+            builder.Property(area => area.File).IsRequired();
+            builder.Property(area => area.ContentType).IsRequired();
 
             base.Configure(builder);
         }

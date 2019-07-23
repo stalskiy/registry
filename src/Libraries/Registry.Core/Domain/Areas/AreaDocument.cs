@@ -13,5 +13,10 @@ namespace Registry.Core.Domain.Areas
         ///  Gets or sets the document file
         /// </summary>
         public byte[] File { get; set; }
+
+        /// <summary>
+        /// Gets or sets the document content type
+        /// </summary>
+        public string ContentType { get; set; }
     }
 }
