@@ -36,7 +36,7 @@ namespace Registry.Api.Infrastructure.Extentions
 
             //add dbcontext 
             var connectionString = configuration["ConnectionStrings:Registry"].ToString();
-            services.AddDbContext<RegistryDbContext>(t => t.UseSqlServer(connectionString));
+            services.AddDbContext<RegistryDbContext>(t => t.UseSqlServer(connectionString, x => x.UseNetTopologySuite()));
 
             //create engine
             var engine = EngineContext.Create();
