@@ -1,18 +1,140 @@
 ﻿@{
     ViewData["Title"] = "Главная страница";
 }
+@using Registry.Web.Models
+@using Registry.Web.Extensions
+@model Registry.Web.Models.AreaModel
 
-<section class="page">
-    <div id="map"></div>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-9">
-                Fixed content
-            </div>
-            <div class="col-lg-3 fixed">
-                Normal scrollable content
-            </div>
-        </div>
+<div id="map"></div>
+
+<div class="container-list">
+    <div>
+        @(Html.DevExtreme().DataGrid<AreaModel>()
+                .ID("gridContainer")
+                .ShowBorders(true)
+                .OnRowInserted("createPolygon")
+                .OnInitNewRow("onCreateArea")
+                .OnRowRemoved("removePolygon")
+                .OnRowUpdated("updatePolygon")
+                .OnRowClick("selectPolygonOnMap")
+                .DataSource(d => d.Mvc()
+                    .Controller("Area")
+                    .LoadAction("GetAreas")
+                    .InsertAction("InsertArea")
+                    .UpdateAction("UpdateArea")
+                    .DeleteAction("DeleteArea")
+                    .Key("Id")
+                )
+                .Paging(p => p.PageSize(8))
+                .Editing(e => e.Mode(GridEditMode.Popup)
+                   .AllowUpdating(true)
+                   .AllowDeleting(true)
+                   .AllowAdding(true)
+                   .Popup(p => p
+                        .Title(this.T("Area.Editor.Title"))
+                        .ShowTitle(true)
+                        .Width(700)
+                        .Height(525)
+                        .Position(pos => pos
+                            .My(HorizontalAlignment.Center, VerticalAlignment.Top)
+                            .At(HorizontalAlignment.Center, VerticalAlignment.Top)
+                            .Of(new JS("window"))
+                        )
+                   )
+                   .Form(f => f.Items(items =>
+                   {
+
+                   items.AddGroup()
+                           .ColCount(1)
+                           .ColSpan(2)
+                           .Items(groupItems =>
+                           {
+                               groupItems.AddSimpleFor(m => m.Name).Label(t => t.Text(this.T("Model.Area.Display.Name")));
+                               groupItems.AddSimpleFor(m => m.CadastralNum).Label(t => t.Text(this.T("Model.Area.Display.CadastralNum")));
+                               groupItems.AddSimpleFor(m => m.InventoryNum).Label(t => t.Text(this.T("Model.Area.Display.InventoryNum")));
+
+                               groupItems.AddSimpleFor(m => m.AreaTypeId).Label(t => t.Text(this.T("Model.Area.Display.AreaTypeId")));
+                               groupItems.AddSimpleFor(m => m.AreaOwnershipTypeId).Label(t => t.Text(this.T("Model.Area.Display.AreaOwnershipTypeId")));
+                           });
+
+                   items.AddSimple()
+                            .Template(@<text>
+                                @(Html.DevExtreme().FileUploader()
+                                            .SelectButtonText(this.T("Common.Select.File"))
+                                            .LabelText("")
+                                            .Accept("*")
+                                            .UploadMode(FileUploadMode.UseForm)
+                                            .OnValueChanged("fileUploader_onValueChanged")
+                                )
+                                </text>);
+
+                           items.AddSimple()
+                                .Template(@<text>
+                                    <img id="myimage" src="#" alt="your image" />
+                                </text>);
+
+
+                       }))
+                    )
+                    .Columns(columns =>
+                    {
+
+                        columns.Add().DataField("Name");
+                        columns.Add().DataField("CadastralNum");
+                        columns.Add().DataField("InventoryNum").Visible(false);
+
+                        columns.AddFor(m => m.AreaTypeId)
+                        .Width(125)
+                        .Visible(false)
+                        .Lookup(lookup => lookup
+                            .DataSource(d => d.Mvc().Controller("Area").LoadAction("GetAreaTypes").Key("Id"))
+                            .DisplayExpr("Name")
+                            .ValueExpr("Id")
+                        );
+
+                        columns.AddFor(m => m.AreaOwnershipTypeId)
+                        .Width(125)
+                        .Visible(false)
+                        .Lookup(lookup => lookup
+                            .DataSource(d => d.Mvc().Controller("Area").LoadAction("GetAreaOwnershipTypes").Key("Id"))
+                            .DisplayExpr("Name")
+                            .ValueExpr("Id")
+                        );
+
+                    })
+        )
     </div>
 
-</section>
+    <hr />
+
+    @(Html.DevExtreme().Button()
+                        .ID("polygonSaveButton")
+                        .Text(this.T("Area.Polygon.Button.Save.Text"))
+                        .Type(ButtonType.Danger)
+                        .StylingMode(ButtonStylingMode.Contained)
+                        .Visible(false)
+                        .OnClick("savePolygon")
+                    )
+</div>
+
+<script>
+
+    function selectBox_valueChanged(data) {
+        getFormInstance().option("formData", data.value);
+    }
+
+    function fileUploader_onValueChanged(e) {
+        var files = e.value;
+        if (files && files.length) {
+            var reader = new FileReader();
+            reader.onload = function (arg) {
+                $('#myimage')
+                    .attr('src', arg.target.result)
+                    .width(150)
+                    .height(200);
+            };
+            reader.readAsDataURL(files[0]);
+        }
+    }
+</script>
+
