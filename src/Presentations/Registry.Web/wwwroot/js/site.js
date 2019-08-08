@@ -11,6 +11,18 @@ var color = {
     border: '#0000FF'
 };
 
+var localize = {
+    success : {
+        remove: "Полигон успешно удален!",
+        save: "Полигон успешно сохранен!",
+        changed: "Полигон успешно изменен!",
+        load: "Данные успешно загружены!"
+    },
+    warning: {
+        saved: "Данные предыдущего полигоне не сохранены. Они будут автоматически сохранены!"
+    }
+}
+
 $(window).on('load', function () {
 
     loadAllPolygons();
@@ -38,10 +50,30 @@ function savePolygon() {
         url: '/Area/InsertPolygon',
         data: {values: JSON.stringify(geometry) },
         success: function (data) {
-            DevExpress.ui.notify("The polygon is saved successfully!", "success");
+            DevExpress.ui.notify(localize.success.save, "success");
             myPolygon.editor.stopDrawing();
             myPolygon.editor.stopEditing();
             setPolygon();
+        }
+    });
+}
+
+function saveNotSavedPolygon() {
+
+    var geometry = {
+        AreaId: myPolygon.properties.get("areaId"),
+        Hint: myPolygon.properties.get("hintContent"),
+        Coordinates: JSON.stringify(myPolygon.geometry.getCoordinates())
+    };
+
+    myPolygon.editor.stopDrawing();
+    myPolygon.editor.stopEditing();
+
+    $.ajax({
+        type: 'POST',
+        url: '/Area/InsertPolygon',
+        data: { values: JSON.stringify(geometry) },
+        success: function (data) {
         }
     });
 }
@@ -80,12 +112,12 @@ function removePolygon(e) {
         myMap.geoObjects.remove(polygon);
     }
 
-    DevExpress.ui.notify("Polygon successfully removed!", "success");
+    DevExpress.ui.notify(localize.success.remove, "success");
 }
 
 function updatePolygon(e) {
 
-    DevExpress.ui.notify("Polygon was successfully changed!", "success");
+    DevExpress.ui.notify(localize.success.changed, "success");
 }
 
 function selectPolygonOnMap(e) {
@@ -111,7 +143,7 @@ function loadAllPolygons() {
             $.each(data.data, function (index, value) {
                 addPolygonToMap(value);
             });
-            DevExpress.ui.notify("The polygons is load successfully!", "success");
+            DevExpress.ui.notify(localize.success.load, "success");
         }
     });
 }
@@ -133,27 +165,26 @@ function addPolygonToMap(geometry) {
 
 function onCreateArea(e) {
     if (myPolygon) {
-        window.setTimeout(function () { DevExpress.ui.notify("The current polygon is not saved. It will be deleted!", "warning"); }, 0);
+        window.setTimeout(function () { DevExpress.ui.notify(localize.warning.saved, "warning"); }, 0);
     }
 }
 
-function deleteAreaById(id) {
-    $.ajax({
-        type: 'DELETE',
-        url: '/Area/DeleteArea',
-        data: { key: id },
-        success: function (data) {
-            $("#gridContainer").dxDataGrid("instance").refresh();
-        }
-    });
-}
+//function deleteAreaById(id) {
+//    $.ajax({
+//        type: 'DELETE',
+//        url: '/Area/DeleteArea',
+//        data: { key: id },
+//        success: function (data) {
+//            $("#gridContainer").dxDataGrid("instance").refresh();
+//        }
+//    });
+//}
 
 
 function setPolygon(polygon) {
 
     if (myPolygon && polygon) {
-        myMap.geoObjects.remove(myPolygon);
-        deleteAreaById(myPolygon.properties.get("areaId"));
+        saveNotSavedPolygon();
     }
 
     myPolygon = polygon;

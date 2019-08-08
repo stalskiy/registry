@@ -34,47 +34,52 @@
                         .Title(this.T("Area.Editor.Title"))
                         .ShowTitle(true)
                         .Width(700)
-                        .Height(525)
+                        .Height(550)
                         .Position(pos => pos
                             .My(HorizontalAlignment.Center, VerticalAlignment.Top)
                             .At(HorizontalAlignment.Center, VerticalAlignment.Top)
                             .Of(new JS("window"))
                         )
                    )
-                   .Form(f => f.Items(items =>
-                   {
+                   .Form(f => f.ID("form")
+                       .Items(items =>
+                       {
 
-                   items.AddGroup()
-                           .ColCount(1)
-                           .ColSpan(2)
-                           .Items(groupItems =>
-                           {
-                               groupItems.AddSimpleFor(m => m.Name).Label(t => t.Text(this.T("Model.Area.Display.Name")));
-                               groupItems.AddSimpleFor(m => m.CadastralNum).Label(t => t.Text(this.T("Model.Area.Display.CadastralNum")));
-                               groupItems.AddSimpleFor(m => m.InventoryNum).Label(t => t.Text(this.T("Model.Area.Display.InventoryNum")));
+                           items.AddGroup()
+                                   .ColCount(1)
+                                   .ColSpan(2)
+                                   .Items(groupItems =>
+                                   {
+                                       groupItems.AddSimpleFor(m => m.FileId).Visible(false);
+                                       groupItems.AddSimpleFor(m => m.Name).Label(t => t.Text(this.T("Model.Area.Display.Name")));
+                                       groupItems.AddSimpleFor(m => m.CadastralNum).Label(t => t.Text(this.T("Model.Area.Display.CadastralNum")));
+                                       groupItems.AddSimpleFor(m => m.InventoryNum).Label(t => t.Text(this.T("Model.Area.Display.InventoryNum")));
+                                       
+                                       groupItems.AddSimpleFor(m => m.AreaTypeId).Label(t => t.Text(this.T("Model.Area.Display.AreaTypeId")));
+                                       groupItems.AddSimpleFor(m => m.AreaOwnershipTypeId).Label(t => t.Text(this.T("Model.Area.Display.AreaOwnershipTypeId")));
+                                       groupItems.AddSimpleFor(m => m.FileId).Label(t => t.Text(this.T("Model.Area.Display.FileDetail"))).Editor(t=>t.TextBox().ID("fileId")).Visible(false);
 
-                               groupItems.AddSimpleFor(m => m.AreaTypeId).Label(t => t.Text(this.T("Model.Area.Display.AreaTypeId")));
-                               groupItems.AddSimpleFor(m => m.AreaOwnershipTypeId).Label(t => t.Text(this.T("Model.Area.Display.AreaOwnershipTypeId")));
-                           });
-
-                   items.AddSimple()
-                            .Template(@<text>
-                                @(Html.DevExtreme().FileUploader()
-                                            .SelectButtonText(this.T("Common.Select.File"))
-                                            .LabelText("")
-                                            .Accept("*")
-                                            .UploadMode(FileUploadMode.UseForm)
-                                            .OnValueChanged("fileUploader_onValueChanged")
-                                )
-                                </text>);
+                                       groupItems.AddSimpleFor(m => m.FileName)
+                                       .Label(t => t.Text(this.T("Model.Area.Display.FileDetail")))
+                                       .Editor(t => t.TextBox().ID("fileName").Disabled(true))
+                                       .IsRequired(false);
+                               });
 
                            items.AddSimple()
-                                .Template(@<text>
-                                    <img id="myimage" src="#" alt="your image" />
-                                </text>);
+                                    .Template(@<text>
+                                        @(Html.DevExtreme().FileUploader()
+                                                    .Name("File")
+                                                    .SelectButtonText(this.T("Common.Select.File"))
+                                                    .Accept("*")
+                                                    .Multiple(false)
+                                                    .UploadUrl(Url.Action("Upload", "File"))
+                                                    .UploadMode(FileUploadMode.Instantly)
+                                                    .OnUploaded("fileUploader_onUploaded")
 
+                                        )
+                                        </text>);
 
-                       }))
+                       }).OnInitialized("onFormInitialized"))
                     )
                     .Columns(columns =>
                     {
@@ -82,6 +87,8 @@
                         columns.Add().DataField("Name");
                         columns.Add().DataField("CadastralNum");
                         columns.Add().DataField("InventoryNum").Visible(false);
+                        columns.Add().DataField("FileId").Visible(false);
+                        columns.Add().DataField("FileName").Visible(false);
 
                         columns.AddFor(m => m.AreaTypeId)
                         .Width(125)
@@ -118,23 +125,58 @@
 </div>
 
 <script>
+    function onFormInitialized(e) {
+        var validationGroup = e.component.option("validationGroup");
+        var formId = e.component.option("formID");
+        
+        var fileId;
+        if (validationGroup.oldData)
+            fileId = validationGroup.oldData.FileId;
+        else
+            return;
+    }
+
+    function getFormInstance() {
+        return $("#form").dxForm("instance");
+    }
 
     function selectBox_valueChanged(data) {
         getFormInstance().option("formData", data.value);
     }
 
     function fileUploader_onValueChanged(e) {
+        console.log(getFormInstance());
         var files = e.value;
         if (files && files.length) {
             var reader = new FileReader();
             reader.onload = function (arg) {
-                $('#myimage')
-                    .attr('src', arg.target.result)
-                    .width(150)
-                    .height(200);
+                alert(1);
+                getFormInstance().beginUpdate();
+                getFormInstance().updateData("InventoryNum", arg.target.result);
+                getFormInstance().endUpdate();
             };
             reader.readAsDataURL(files[0]);
         }
+    }
+
+    function fileUploader_onUploaded(e) {
+        console.log(getFormInstance());
+        var fileId = e.request.response;
+
+        var validationGroup = getFormInstance().option("validationGroup");
+        if (!validationGroup.type)
+            validationGroup.type = "update";
+
+        if (validationGroup.data)
+            validationGroup.data.FileId = fileId;
+        else
+            validationGroup.data = { FileId: fileId };
+
+        getFormInstance().option("validationGroup", validationGroup);
+
+        var form = $("#form").dxForm({
+            formData: { "FileId": fileId }
+        }).dxForm("instance");
     }
 </script>
 

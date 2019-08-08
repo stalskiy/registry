@@ -23,12 +23,17 @@ namespace Registry.Web.Extensions.Constants
             { "Model.Area.Display.AreaOwnershipTypeId", "Вид права"},
             { "Model.Area.Display.AreaOwnershipType", "Вид права"},
             { "Model.Area.Display.Document", "Правоустанавливающий документ"},
+            { "Model.Area.Display.FileDetail", "Файл"},
 
             { "Common.Select.File", "Выбрать"},
+            { "Common.Button.Download.Text", "Скачать"},
 
             { "Area.Editor.Title", "Карточка объекта"},
 
             { "Area.Polygon.Button.Save.Text", "Сохранить полигон"},
+
+            { "Model.Area.Required.Name", "[Наименование]: обязательно для заполнения!"},
+            { "Model.Area.Required.CadastralNum", "[Кадастровый номер]: обязательно для заполнения!"},
         };
     }
 }
