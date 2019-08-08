@@ -2,7 +2,7 @@
 .Net Core Api for working with polygons
 
 + .Net Core Api Server 
-- .Net Core MVC Client
++ .Net Core MVC Client [DevExtreme] | TODO: Need to integrate with API!
 - Redis
 - SignalR
 - Module architecture
